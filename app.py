@@ -1,6 +1,22 @@
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, request
 
 app = Flask(__name__)
+
+# SECURITY HARDENING
+from collections import defaultdict, deque
+from time import monotonic
+_SEC_RATE=defaultdict(deque)
+@app.before_request
+def _sec_before():
+    if request.content_length and request.content_length > 1048576:return jsonify(error="Request too large."),413
+    if request.path.startswith("/.git/") or request.path.startswith("/.env"):return jsonify(error="Not Found."),404
+    q=_SEC_RATE[request.remote_addr or "unknown"];now=monotonic()
+    while q and now-q[0]>60:q.popleft()
+    if len(q)>=(30 if request.method=="POST" else 120):return jsonify(error="Too many requests."),429
+    q.append(now)
+@app.after_request
+def _sec_headers(response):
+    response.headers["X-Content-Type-Options"]="nosniff";response.headers["X-Frame-Options"]="DENY";response.headers["Referrer-Policy"]="strict-origin-when-cross-origin";response.headers["Permissions-Policy"]="camera=(), microphone=(), geolocation=()";response.headers["Strict-Transport-Security"]="max-age=31536000; includeSubDomains";response.headers.pop("Server",None);return response
 
 
 # --- Security hardening ---
