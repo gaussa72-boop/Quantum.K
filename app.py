@@ -61,7 +61,16 @@ def _security_headers(response):
     return response
 # --- End security hardening ---
 
-PAGE = '''<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quantum.K</title><style>body{margin:0;background:#050711;color:#eef5ff;font:16px system-ui;text-align:center}main{max-width:900px;margin:auto;padding:12vh 24px}.core{margin:40px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#fff,#8fd7ff 12%,#675cff 35%,transparent 70%);box-shadow:0 0 90px #635cff}h1{font-size:48px}p{color:#aab7d4}button{padding:12px 18px;border-radius:10px;border:0;font-weight:700}</style></head><body><main><div class="core"></div><h1>QUANTUM.K</h1><p>Eigenständige Quantum-Core-App · sichere Rechenmodelle · API</p><button onclick="fetch('/api/health').then(r=>r.json()).then(x=>alert(JSON.stringify(x)))">CORE STATUS</button></main></body></html>'''
+PAGE = '''<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quantum.K</title><style>body{margin:0;background:#050711;color:#eef5ff;font:16px system-ui;text-align:center}main{max-width:900px;margin:auto;padding:12vh 24px}.core{margin:40px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#fff,#8fd7ff 12%,#675cff 35%,transparent 70%);box-shadow:0 0 90px #635cff}h1{font-size:48px}p{color:#aab7d4}button{padding:12px 18px;border-radius:10px;border:0;font-weight:700}<style id="ultima-complete-2026">
+:root{color-scheme:dark;--u-cyan:#7de9ef;--u-violet:#9d8bff;--u-line:rgba(166,187,255,.16)}
+html{scroll-behavior:smooth}body{overflow-x:hidden!important;background-image:radial-gradient(ellipse at 12% 0%,rgba(101,83,206,.2),transparent 40%),radial-gradient(ellipse at 90% 12%,rgba(31,178,191,.12),transparent 35%)}
+header,nav,.sidebar,.side,.panel,.card,.toolbar,.composer{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+button,input,textarea,select{font:inherit}input,textarea,select{max-width:100%}
+input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--u-cyan)!important;outline-offset:3px}
+button,a{transition:transform .18s ease,box-shadow .18s ease}button:hover{transform:translateY(-1px)}
+@media(max-width:760px){.app{height:auto!important;min-height:100vh;display:block!important}.side,.sidebar{width:100%!important;min-height:0!important}.main,.content{width:100%!important;min-width:0!important;padding:14px!important}.grid{display:block!important}.top{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style></style></head><body><main><div class="core"></div><h1>QUANTUM.K</h1><p>Eigenständige Quantum-Core-App · sichere Rechenmodelle · API</p><button onclick="fetch('/api/health').then(r=>r.json()).then(x=>alert(JSON.stringify(x)))">CORE STATUS</button></main></body></html>'''
 
 @app.get('/')
 def index(): return render_template_string(PAGE)
