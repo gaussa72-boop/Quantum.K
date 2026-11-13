@@ -94,7 +94,7 @@ async function health(){try{const r=await fetch('/api/health',{cache:'no-store'}
 form.addEventListener('submit',async e=>{e.preventDefault();const message=input.value.trim();if(!message)return;add('user',message);input.value='';send.disabled=true;send.textContent='…';try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})}),d=await r.json();if(!r.ok)throw new Error(d.error||('HTTP '+r.status));add('ai',d.reply||'Keine Antwort erhalten.')}catch(err){add('ai','Fehler: '+err.message)}finally{send.disabled=false;send.textContent='Senden';input.focus()}});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
 health();
-</script></body></html>'''
+</script><script src="https://ultima-membership-api.onrender.com/support-widget.js" defer></script></body></html>'''
 
 @app.get('/')
 def index(): return render_template_string(PAGE)
