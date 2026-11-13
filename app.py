@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, render_template_string, request
+import os
+import requests
 
 app = Flask(__name__)
 
@@ -61,21 +63,43 @@ def _security_headers(response):
     return response
 # --- End security hardening ---
 
-PAGE = '''<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quantum.K</title><style>body{margin:0;background:#050711;color:#eef5ff;font:16px system-ui;text-align:center}main{max-width:900px;margin:auto;padding:12vh 24px}.core{margin:40px auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#fff,#8fd7ff 12%,#675cff 35%,transparent 70%);box-shadow:0 0 90px #635cff}h1{font-size:48px}p{color:#aab7d4}button{padding:12px 18px;border-radius:10px;border:0;font-weight:700}<style id="ultima-complete-2026">
-:root{color-scheme:dark;--u-cyan:#7de9ef;--u-violet:#9d8bff;--u-line:rgba(166,187,255,.16)}
-html{scroll-behavior:smooth}body{overflow-x:hidden!important;background-image:radial-gradient(ellipse at 12% 0%,rgba(101,83,206,.2),transparent 40%),radial-gradient(ellipse at 90% 12%,rgba(31,178,191,.12),transparent 35%)}
-header,nav,.sidebar,.side,.panel,.card,.toolbar,.composer{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-button,input,textarea,select{font:inherit}input,textarea,select{max-width:100%}
-input:focus,textarea:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--u-cyan)!important;outline-offset:3px}
-button,a{transition:transform .18s ease,box-shadow .18s ease}button:hover{transform:translateY(-1px)}
-@media(max-width:760px){.app{height:auto!important;min-height:100vh;display:block!important}.side,.sidebar{width:100%!important;min-height:0!important}.main,.content{width:100%!important;min-width:0!important;padding:14px!important}.grid{display:block!important}.top{flex-wrap:wrap}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
-</style></style></head><body><main><div class="core"></div><h1>QUANTUM.K</h1><p>Eigenständige Quantum-Core-App · sichere Rechenmodelle · API</p><button onclick="fetch('/api/health').then(r=>r.json()).then(x=>alert(JSON.stringify(x)))">CORE STATUS</button></main></body></html>'''
+PAGE = '''<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quantum Super Intelligence</title>
+<style>
+:root{color-scheme:dark;--bg:#070914;--panel:#111629;--line:rgba(255,255,255,.12);--cyan:#8be7f3;--muted:#9da9c2}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#32205f 0,transparent 55%),var(--bg);color:#f2f4ff;font:15px system-ui}
+header{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#080b18d9;backdrop-filter:blur(16px)}
+.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.09em}.core{width:32px;height:32px;border-radius:50%;background:radial-gradient(circle,#fff,#8be7f3 18%,#7357ff 55%,transparent 72%);box-shadow:0 0 26px #7357ff}
+.status{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 12px}
+main{max-width:940px;margin:auto;padding:34px 18px;min-height:calc(100vh - 70px);display:flex;flex-direction:column}
+h1{font-size:clamp(26px,5vw,44px);margin:12px 0 6px}.sub{color:var(--muted);margin:0 0 22px}
+#messages{flex:1;min-height:260px;max-height:62vh;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:14px 0}
+.msg{max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;padding:13px 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+.msg.user{align-self:flex-end;background:#1d1d42;border-color:#443c83}.msg.ai{align-self:flex-start}
+form{display:flex;gap:10px;align-items:flex-end;border:1px solid var(--line);border-radius:18px;background:#111629;padding:10px}
+textarea{flex:1;min-height:54px;max-height:180px;resize:vertical;background:transparent;color:#fff;border:0;outline:0;padding:10px;font:inherit}
+button{border:0;border-radius:12px;padding:12px 18px;background:linear-gradient(135deg,#9b78ff,#62d4df);color:#0b0d1b;font-weight:800;cursor:pointer}button:disabled{opacity:.55;cursor:wait}
+.note{font-size:12px;color:var(--muted);margin:10px 4px}
+@media(max-width:600px){header{padding:0 13px}main{padding:22px 12px}.msg{max-width:96%}form{gap:5px;padding:8px}button{padding:11px 13px}}
+</style></head><body>
+<header><div class="brand"><span class="core"></span><span>QUANTUM SUPER INTELLIGENCE</span></div><div id="status" class="status">KI wird geprüft …</div></header>
+<main><h1>Denke weiter.</h1><p class="sub">Ein zentraler KI-Arbeitsraum für Analyse, Wissen, Ideen und Code.</p>
+<div id="messages" aria-live="polite"><div class="msg ai">Willkommen. Ich bin Quantum Super Intelligence. Was möchtest du entwickeln oder verstehen?</div></div>
+<form id="form"><textarea id="message" placeholder="Nachricht an Quantum Super Intelligence …" required></textarea><button id="send" type="submit">Senden</button></form>
+<p class="note">Für echte KI-Antworten muss OPENAI_API_KEY in Render hinterlegt sein. Schlüssel bleiben serverseitig.</p></main>
+<script>
+const messages=document.getElementById('messages'),statusEl=document.getElementById('status'),form=document.getElementById('form'),input=document.getElementById('message'),send=document.getElementById('send');
+function add(role,text){const e=document.createElement('div');e.className='msg '+role;e.textContent=text;messages.appendChild(e);messages.scrollTop=messages.scrollHeight}
+async function health(){try{const r=await fetch('/api/health',{cache:'no-store'}),x=await r.json();statusEl.textContent=x.ai_configured?'● Verbunden · '+x.model:'○ API-Key fehlt';statusEl.style.color=x.ai_configured?'#8de5b1':'#f2c27a'}catch(_){statusEl.textContent='Status nicht verfügbar'}}
+form.addEventListener('submit',async e=>{e.preventDefault();const message=input.value.trim();if(!message)return;add('user',message);input.value='';send.disabled=true;send.textContent='…';try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})}),d=await r.json();if(!r.ok)throw new Error(d.error||('HTTP '+r.status));add('ai',d.reply||'Keine Antwort erhalten.')}catch(err){add('ai','Fehler: '+err.message)}finally{send.disabled=false;send.textContent='Senden';input.focus()}});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
+health();
+</script></body></html>'''
 
 @app.get('/')
 def index(): return render_template_string(PAGE)
 
 @app.get('/api/health')
-def health(): return jsonify(status='ok', app='Quantum.K', mode='standalone')
+def health(): return jsonify(status='ok', app='Quantum.K', mode='openai-chat', ai_configured=bool(os.getenv('OPENAI_API_KEY','').strip()), model=os.getenv('OPENAI_MODEL','gpt-4o-mini'))
 
 if __name__ == '__main__': app.run(host='127.0.0.1', port=5001, debug=False)
