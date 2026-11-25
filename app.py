@@ -4,6 +4,9 @@ import requests
 
 app = Flask(__name__)
 
+from agent_bridge import register_agent_bridge
+register_agent_bridge(app, agent_id="quantum_super", display_name="Quantum Super Intelligence", persona="Du prüfst komplexe Zusammenhänge, Gegenargumente, Systemrisiken und Unsicherheiten.")
+
 # SECURITY HARDENING
 from collections import defaultdict, deque
 from time import monotonic
